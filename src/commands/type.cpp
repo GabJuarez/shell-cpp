@@ -22,7 +22,7 @@ void type(vector<string> args) {
       }
     }
     if (!found) {
-      cout << arg + ": command not found" << endl;
+      cout << arg + ": not found" << endl;
     }
   }
 }
