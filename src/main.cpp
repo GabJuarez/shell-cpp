@@ -13,9 +13,17 @@ using namespace std;
 // translation units
 // if the project gets bigger these should be moved to their respective header
 // files
+
+//with args
 void echo(vector<string> args);
+void type(vector<string> args);
+
+//no args
 void exit1();
+
+//helpers
 string trim(const string &str);
+
 
 int main() {
   // Flush after every std::cout / std:cerr
@@ -25,6 +33,7 @@ int main() {
   // Mapping the commands so we can use the values to call the functions
   map<string, function<void(vector<string>)>> commands_with_args;
   commands_with_args["echo"] = echo;
+  commands_with_args["type"] = type;
 
   map<string, function<void()>> commands_no_args;
   commands_no_args["exit"] = exit1;
