@@ -77,8 +77,10 @@ int main() {
         commands_no_args[command]();
       }
       commands_with_args[command](args);
-    } catch (exception) {
+
+    } catch (const exception& e) {
       // If the command doesn't exist a error message will be printed
+      cout << e.what() << endl;
       cout << input + ": command not found" << endl;
     }
   }
