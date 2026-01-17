@@ -3,10 +3,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <sys/_types/_gid_t.h>
-#include <sys/_types/_off_t.h>
-#include <sys/_types/_s_ifmt.h>
-#include <sys/_types/_uid_t.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
