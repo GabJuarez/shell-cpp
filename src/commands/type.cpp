@@ -83,7 +83,7 @@ void type(vector<string> args) {
             if (fs::is_regular_file(entry)) {
               if (entry.path().stem() == arg &&
                   is_executable_cu(entry.path().c_str())) {
-                cout << arg + " is " + path.string() << endl;
+                cout << arg + " is " + path.c_str() << endl;
                 found = true;
                 break;
               }
