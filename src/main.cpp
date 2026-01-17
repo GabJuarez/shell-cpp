@@ -14,16 +14,15 @@ using namespace std;
 // if the project gets bigger these should be moved to their respective header
 // files
 
-//with args
+// with args
 void echo(vector<string> args);
 void type(vector<string> args);
 
-//no args
+// no args
 void exit1();
 
-//helpers
+// helpers
 string trim(const string &str);
-
 
 int main() {
   // Flush after every std::cout / std:cerr
@@ -78,9 +77,8 @@ int main() {
       }
       commands_with_args[command](args);
 
-    } catch (const exception& e) {
+    } catch (exception) {
       // If the command doesn't exist a error message will be printed
-      cout << e.what() << endl;
       cout << input + ": command not found" << endl;
     }
   }
