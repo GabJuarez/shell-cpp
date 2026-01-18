@@ -30,6 +30,7 @@ int main() {
   commands["type"] = [](const std::vector<std::string> &args) { sh::builtins::type(args); };
   commands["exit"] = [](const std::vector<std::string> &args) { sh::builtins::exit1(); };
   commands["pwd"] = [](const std::vector<std::string> &args){ sh::builtins::pwd(); };
+  commands["cd"] = [](const std::vector<std::string> &args){ sh::builtins::cd(args); };
 
   while (true) {
     // Display prompt

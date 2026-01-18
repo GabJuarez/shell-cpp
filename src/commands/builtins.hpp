@@ -4,13 +4,14 @@
 
 namespace sh::builtins {
 // List of built-in commands
-const std::string builtins[] = {"echo", "exit", "type", "pwd"};
+const std::string builtins[] = {"echo", "exit", "type", "pwd", "cd"};
 
 // Exposing builtins namespace functions
 void echo(const std::vector<std::string> &args);
 void exit1();
 void type(const std::vector<std::string> &args);
 void pwd();
+void cd(const std::vector<std::string> &args);
 
 
 // inline function to check if a command is a built-in
