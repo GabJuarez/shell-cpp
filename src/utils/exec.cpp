@@ -64,9 +64,21 @@ void exec_command(std::string &command, std::vector<std::string> &args) {
     for (auto &s : args) {
       argv.push_back(const_cast<char *>(s.c_str()));
     }
-
     argv.push_back(nullptr);
-    execvp(full_path_opt->c_str(), argv.data());
+
+    // Forking the process
+    // Fork duplicates the current process and creates a child and a parent process
+    pid_t pid = fork();
+    if (pid == 0) {
+      // Child: replace process image
+      execvp(full_path_opt->c_str(), argv.data());
+      perror("execvp");
+      _exit(1);
+    } else if (pid > 0) {
+      // Parent: wait and return to the loop to print the prompt
+      int status;
+      waitpid(pid, &status, 0);
+    }
     return;
   }
 }
