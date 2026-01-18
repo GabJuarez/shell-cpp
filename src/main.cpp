@@ -78,6 +78,7 @@ int main() {
       }
 
       sh::exec::exec_command(command, args);
+      continue;
 
     } catch (std::exception) {
       // If the command doesn't exist a error message will be printed
