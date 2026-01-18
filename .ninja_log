@@ -1,0 +1,9 @@
+# ninja log v6
+1	36	1768707487995346630	CMakeFiles/shell.dir/src/commands/exit.cpp.o	b337ec60cb446138
+1	328	1768707487995113255	CMakeFiles/shell.dir/src/commands/echo.cpp.o	7cfbcb0f7d2603b4
+3	477	1768712994029344693	CMakeFiles/shell.dir/src/main.cpp.o	b6ace73ad3f97853
+3	379	1768713382284566327	CMakeFiles/shell.dir/src/utils/exec.cpp.o	102ea11d6d5d2e68
+389	418	1768713382670735330	shell	4ceb531bdad8e6a4
+1	142	1768707487995562589	CMakeFiles/shell.dir/src/helpers/string_helpers.cpp.o	f3b37ff809f7ec76
+3	389	1768713382284241326	CMakeFiles/shell.dir/src/commands/type.cpp.o	328fb011ccea798e
+3	374	1768713382284793744	CMakeFiles/shell.dir/src/utils/paths.cpp.o	fb12f8daca02418e
