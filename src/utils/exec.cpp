@@ -1,10 +1,12 @@
 #include "../utils/paths.hpp"
+#include "exec.hpp"
 #include <filesystem>
 #include <iostream>
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <vector>
+#include <sys/wait.h>
 
 namespace fs = std::filesystem;
 
