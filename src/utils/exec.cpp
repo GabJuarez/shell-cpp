@@ -48,6 +48,10 @@ bool is_executable_cu(const fs::path &p) {
 void exec_command(std::string &command, std::vector<std::string> &args) {
   std::filesystem::path full_path = sh::paths::get_first_entry(command);
   if (sh::exec::is_executable_cu(full_path)) {
+    if(full_path.string().empty()) {
+      system(command.c_str());
+      return;
+    }
     std::string formatted_args;
     std::stringstream ss;
     for (const auto &arg : args) {
