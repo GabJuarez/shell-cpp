@@ -1,50 +1,49 @@
 // #include <boost/algorithm/string.hpp>
-#include <cstdlib>
+#include "utils/builtins.hpp"
+#include "utils/exec.hpp"
 #include <exception>
 #include <functional>
 #include <iostream>
-#include <map>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <vector>
-using namespace std;
 
 // Forward declarations for commands and helpers implemented in other
 // translation units
 // if the project gets bigger these should be moved to their respective header
 // files
 
-// with args
-void echo(vector<string> args);
-void type(vector<string> args);
-
-// no args
+// Commands
+void echo(std::vector<std::string> args);
+void type(std::vector<std::string> args);
 void exit1();
 
 // helpers
-string trim(const string &str);
+std::string trim(const std::string &str);
 
 int main() {
   // Flush after every std::cout / std:cerr
-  cout << unitbuf;
-  cerr << unitbuf;
+  std::cout << std::unitbuf;
+  std::cerr << std::unitbuf;
+
+  // Map wiht optional arguments
+  std::unordered_map<std::string, std::function<void(std::vector<std::string>)>>
+      commands;
 
   // Mapping the commands so we can use the values to call the functions
-  map<string, function<void(vector<string>)>> commands_with_args;
-  commands_with_args["echo"] = echo;
-  commands_with_args["type"] = type;
-
-  map<string, function<void()>> commands_no_args;
-  commands_no_args["exit"] = exit1;
+  // Using lambdas to adapt the function signatures
+  commands["echo"] = [](std::vector<std::string> args) { echo(args); };
+  commands["type"] = [](std::vector<std::string> args) { type(args); };
+  commands["exit"] = [](std::vector<std::string> args) { exit1(); };
 
   while (true) {
     // Display prompt
-    cout << "$ ";
+    std::cout << "$ ";
 
     // Read user input
-    string input;
-    getline(cin, input);
-
+    std::string input;
+    std::getline(std::cin, input);
     if (input.empty()) {
       continue;
     }
@@ -53,17 +52,16 @@ int main() {
     input = trim(input);
 
     // Vector to hold command and arguments
-    vector<string> args;
-    string command;
-    stringstream ss(input);
+    std::vector<std::string> args;
+    std::string command;
+    std::stringstream ss(input);
     ss >> command;
 
     // Removing the command from the stringstream
-    ss = stringstream(ss.str().substr(command.length()));
-
+    ss = std::stringstream(ss.str().substr(command.length()));
     // cleaning the spaces at the beginning after removing the first
     // word(command)
-    ss = stringstream(trim(ss.str()));
+    ss = std::stringstream(trim(ss.str()));
 
     if (!ss.str().empty())
       while (ss >> input) {
@@ -71,15 +69,19 @@ int main() {
       }
 
     try {
-      // Calling the funct with the correct map depending on the args number
-      if (args.empty()) {
-        commands_no_args[command]();
+      if (sh::builtins::is_builtin(command)) {
+        // Calling the funct with the correct map depending on the args number
+        if (args.empty()) {
+          commands[command]({});
+        }
+        commands[command](args);
       }
-      commands_with_args[command](args);
 
-    } catch (exception) {
+      sh::exec::exec_command(command, args);
+
+    } catch (std::exception) {
       // If the command doesn't exist a error message will be printed
-      cout << input + ": command not found" << endl;
+      std::cout << input + ": command not found" << std::endl;
     }
   }
 }

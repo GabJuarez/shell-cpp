@@ -1,11 +1,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
-using namespace std;
 
-void echo(vector<string> args) {
+void echo(std::vector<std::string> args) {
   for (int i = 0; i < args.size(); i++) {
-    cout << args[i] << " ";
+    std::cout << args[i] << " ";
   }
-  cout << endl;
+  std::cout << std::endl;
 }
