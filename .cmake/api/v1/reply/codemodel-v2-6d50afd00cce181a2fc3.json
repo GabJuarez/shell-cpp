@@ -2,12 +2,11 @@
 	"configurations" : 
 	[
 		{
-			"abstractTargets" : [],
 			"directories" : 
 			[
 				{
 					"build" : ".",
-					"jsonFile" : "directory-.-9ad1a58d4644cf6543fa.json",
+					"jsonFile" : "directory-.-f5ebdc15457944623624.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.13"
@@ -40,7 +39,7 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "shell::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-shell-3abba2a615e7055079cf.json",
+					"jsonFile" : "target-shell-7749449182db7905c3ec.json",
 					"name" : "shell",
 					"projectIndex" : 0
 				}
@@ -56,6 +55,6 @@
 	"version" : 
 	{
 		"major" : 2,
-		"minor" : 9
+		"minor" : 8
 	}
 }

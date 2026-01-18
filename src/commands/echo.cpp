@@ -2,9 +2,11 @@
 #include <string>
 #include <vector>
 
-void echo(std::vector<std::string> args) {
-  for (int i = 0; i < args.size(); i++) {
-    std::cout << args[i] << " ";
+namespace sh::builtins {
+  void echo(const std::vector<std::string> &args) {
+    for (const auto & arg : args) {
+      std::cout << arg << " ";
+    }
+    std::cout << std::endl;
   }
-  std::cout << std::endl;
 }

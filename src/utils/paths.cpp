@@ -4,8 +4,6 @@
 #include <sstream>
 #include "../utils/paths.hpp"
 
-
-
 namespace sh::paths {
     std::vector<std::string> get_all_entries(const std::filesystem::path &path) {
         std::vector<std::string> entries;

@@ -36,11 +36,6 @@
 			}
 		]
 	},
-	"codemodelVersion" : 
-	{
-		"major" : 2,
-		"minor" : 9
-	},
 	"compileGroups" : 
 	[
 		{
@@ -61,13 +56,14 @@
 			},
 			"sourceIndexes" : 
 			[
-				0,
 				1,
 				2,
 				3,
 				4,
+				5,
 				6,
-				8
+				7,
+				9
 			]
 		}
 	],
@@ -88,13 +84,6 @@
 		],
 		"language" : "CXX"
 	},
-	"linkLibraries" : 
-	[
-		{
-			"backtrace" : 2,
-			"fragment" : "readline"
-		}
-	],
 	"name" : "shell",
 	"nameOnDisk" : "shell",
 	"paths" : 
@@ -105,23 +94,24 @@
 	"sourceGroups" : 
 	[
 		{
-			"name" : "Source Files",
+			"name" : "Header Files",
 			"sourceIndexes" : 
 			[
 				0,
+				8,
+				10
+			]
+		},
+		{
+			"name" : "Source Files",
+			"sourceIndexes" : 
+			[
 				1,
 				2,
 				3,
 				4,
-				6,
-				8
-			]
-		},
-		{
-			"name" : "Header Files",
-			"sourceIndexes" : 
-			[
 				5,
+				6,
 				7,
 				9
 			]
@@ -131,60 +121,66 @@
 	[
 		{
 			"backtrace" : 1,
+			"path" : "src/commands/builtins.hpp",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/commands/echo.cpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/commands/exit.cpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 1,
+			"compileGroupIndex" : 0,
+			"path" : "src/commands/pwd.cpp",
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/commands/type.cpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/helpers/string_helpers.cpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/main.cpp",
-			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"path" : "src/utils/builtins.hpp",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/utils/exec.cpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/utils/exec.hpp",
-			"sourceGroupIndex" : 1
+			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 1,
 			"compileGroupIndex" : 0,
 			"path" : "src/utils/paths.cpp",
-			"sourceGroupIndex" : 0
+			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 1,
 			"path" : "src/utils/paths.hpp",
-			"sourceGroupIndex" : 1
+			"sourceGroupIndex" : 0
 		}
 	],
 	"type" : "EXECUTABLE"

@@ -1,2 +1,5 @@
 #include <cstdlib>
-void exit1() { exit(0); }
+
+namespace sh::builtins {
+    void exit1() { exit(0); }
+}

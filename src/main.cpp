@@ -1,5 +1,4 @@
-// #include <boost/algorithm/string.hpp>
-#include "utils/builtins.hpp"
+#include "commands/builtins.hpp"
 #include "utils/exec.hpp"
 #include <exception>
 #include <functional>
@@ -8,16 +7,10 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
 // Forward declarations for commands and helpers implemented in other
 // translation units
 // if the project gets bigger these should be moved to their respective header
 // files
-
-// Commands
-void echo(std::vector<std::string> args);
-void type(std::vector<std::string> args);
-void exit1();
 
 // helpers
 std::string trim(const std::string &str);
@@ -33,9 +26,10 @@ int main() {
 
   // Mapping the commands so we can use the values to call the functions
   // Using lambdas to adapt the function signatures
-  commands["echo"] = [](std::vector<std::string> args) { echo(args); };
-  commands["type"] = [](std::vector<std::string> args) { type(args); };
-  commands["exit"] = [](std::vector<std::string> args) { exit1(); };
+  commands["echo"] = [](const std::vector<std::string> &args) { sh::builtins::echo(args); };
+  commands["type"] = [](const std::vector<std::string> &args) { sh::builtins::type(args); };
+  commands["exit"] = [](const std::vector<std::string> &args) { sh::builtins::exit1(); };
+  commands["pwd"] = [](const std::vector<std::string> &args){ sh::builtins::pwd(); };
 
   while (true) {
     // Display prompt
@@ -83,7 +77,7 @@ int main() {
       continue;
 
     } catch (std::exception) {
-      // If the command doesn't exist a error message will be printed
+      // If the command doesn't exist an error message will be printed
       std::cout << input + ": command not found" << std::endl;
     }
   }

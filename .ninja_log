@@ -7,3 +7,14 @@
 1	142	1768707487995562589	CMakeFiles/shell.dir/src/helpers/string_helpers.cpp.o	f3b37ff809f7ec76
 3	389	1768713382284241326	CMakeFiles/shell.dir/src/commands/type.cpp.o	328fb011ccea798e
 3	374	1768713382284793744	CMakeFiles/shell.dir/src/utils/paths.cpp.o	fb12f8daca02418e
+8	606	1768764089535457472	CMakeFiles/shell.dir/src/commands/exit.cpp.o	b337ec60cb446138
+7	877	1768764089535156305	CMakeFiles/shell.dir/src/commands/echo.cpp.o	7cfbcb0f7d2603b4
+8	916	1768764089535899263	CMakeFiles/shell.dir/src/utils/paths.cpp.o	fb12f8daca02418e
+8	952	1768764089535590055	CMakeFiles/shell.dir/src/commands/type.cpp.o	328fb011ccea798e
+8	958	1768764089535799472	CMakeFiles/shell.dir/src/utils/exec.cpp.o	102ea11d6d5d2e68
+8	1015	1768764089535699097	CMakeFiles/shell.dir/src/main.cpp.o	b6ace73ad3f97853
+3	433	1768764298521843130	CMakeFiles/shell.dir/src/main.cpp.o	b6ace73ad3f97853
+433	470	1768764298951917694	shell	4ceb531bdad8e6a4
+3	308	1768765236930859674	CMakeFiles/shell.dir/src/commands/type.cpp.o	328fb011ccea798e
+4	384	1768765236931120090	CMakeFiles/shell.dir/src/main.cpp.o	b6ace73ad3f97853
+3	364	1768765455915037146	CMakeFiles/shell.dir/src/main.cpp.o	b6ace73ad3f97853
