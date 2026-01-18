@@ -67,6 +67,7 @@ void exec_command(std::string &command, std::vector<std::string> &args) {
 
     argv.push_back(nullptr);
     execvp(full_path_opt->c_str(), argv.data());
+    return;
   }
 }
 
