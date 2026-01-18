@@ -39,7 +39,7 @@ int main() {
 
   while (true) {
     // Display prompt
-    std::cout << "$ ";
+    std::cout << "$ " << std::flush;
 
     // Read user input
     std::string input;
