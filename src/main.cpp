@@ -73,8 +73,10 @@ int main() {
         // Calling the funct with the correct map depending on the args number
         if (args.empty()) {
           commands[command]({});
+          continue;
         }
         commands[command](args);
+        continue;
       }
 
       sh::exec::exec_command(command, args);
