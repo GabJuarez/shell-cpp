@@ -58,9 +58,16 @@ void exec_command(std::string &command, std::vector<std::string> &args) {
       ss << arg << " ";
     }
     formatted_args = ss.str();
+    std::vector<char *> argv;
 
+    for (auto &s : args) {
+      argv.push_back(const_cast<char *>(s.c_str()));
+    }
+
+    //
+    argv.push_back(nullptr);
     std::string exec_str =  full_path.string() + " " + formatted_args;
-    system(exec_str.c_str());
+    execvp(full_path.c_str(), argv.data());
   }
 }
 
