@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <optional>
 #include <vector>
 #include <sstream>
 #include "../utils/paths.hpp"
@@ -20,7 +21,7 @@ namespace sh::paths {
     }
 
 
-    std::string get_first_entry(const std::string &command) {
+    std::optional<std::string> get_first_entry(const std::string &command) {
         std::vector<std::filesystem::path> paths = sh::paths::get_paths();
         try {
             for (const auto &path : paths) {
@@ -36,7 +37,7 @@ namespace sh::paths {
         catch (std::exception) {
             // Ignore permission errors and continue
         }
-        return "";
+        return std::nullopt;
     }
 
     std::vector<std::filesystem::path> get_paths() {

@@ -1,7 +1,6 @@
 #include "../utils/paths.hpp"
 #include <filesystem>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -46,9 +45,9 @@ bool is_executable_cu(const fs::path &p) {
 }
 
 void exec_command(std::string &command, std::vector<std::string> &args) {
-  std::filesystem::path full_path = sh::paths::get_first_entry(command);
-  if (sh::exec::is_executable_cu(full_path)) {
-    if(full_path.string().empty()) {
+  std::optional<std::string> full_path_opt = sh::paths::get_first_entry(command);
+  if (full_path_opt && sh::exec::is_executable_cu(*full_path_opt)) {
+    if(full_path_opt->empty()) {
       execvp(command.c_str(), nullptr);
       return;
     }
@@ -63,7 +62,7 @@ void exec_command(std::string &command, std::vector<std::string> &args) {
     }
 
     argv.push_back(nullptr);
-    execvp(full_path.c_str(), argv.data());
+    execvp(full_path_opt->c_str(), argv.data());
   }
 }
 
