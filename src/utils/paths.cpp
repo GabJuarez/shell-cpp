@@ -10,7 +10,7 @@ namespace sh::paths {
         std::vector<std::string> entries;
         try {
             for (const auto &entry : std::filesystem::recursive_directory_iterator(path)) {
-                entries.append_range(entry.path());
+                entries.push_back(entry.path().string());
             }
         }
         catch (std::exception) {
