@@ -52,17 +52,24 @@ void exec_command(std::string &command, std::vector<std::string> &args) {
       execvp(command.c_str(), nullptr);
       return;
     }
-    std::string formatted_args;
-    std::stringstream ss;
-    for (const auto &arg : args) {
-      ss << arg << " ";
-    }
-    formatted_args = ss.str();
+
+    // Prepare arguments to posix function
+    // only knows when the args end when it finds a nullptr
     std::vector<char *> argv;
 
     for (auto &s : args) {
       argv.push_back(const_cast<char *>(s.c_str()));
     }
+
+    std::string formatted_args;
+    std::stringstream ss;
+    for (const auto &arg : argv) {
+      std::string str = arg;
+      ss << str << " ";
+    }
+
+    formatted_args = ss.str();
+    
 
     //
     argv.push_back(nullptr);
