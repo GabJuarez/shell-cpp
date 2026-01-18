@@ -63,6 +63,10 @@ void exec_command(std::string &command, std::vector<std::string> &args) {
 
     std::string formatted_args;
     std::stringstream ss;
+
+    // Including command so the argc is correct
+    ss << command << " ";
+    
     for (const auto &arg : argv) {
       std::string str = arg;
       ss << str << " ";
