@@ -56,12 +56,12 @@ void exec_command(std::string &command, std::vector<std::string> &args) {
     // Prepare arguments to posix function
     // only knows when the args end when it finds a nullptr
     std::vector<char *> argv;
-    argv.push_back(const_cast<char *>(full_path.c_str()));
+    argv.push_back(const_cast<char *>(command.c_str()));
 
     for (auto &s : args) {
       argv.push_back(const_cast<char *>(s.c_str()));
     }
-    
+
     argv.push_back(nullptr);
     execvp(full_path.c_str(), argv.data());
   }
