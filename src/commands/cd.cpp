@@ -26,8 +26,7 @@ namespace sh::builtins {
                 }
 
                 if (home != nullptr) {
-                    std::filesystem::current_path(std::filesystem::path(ho
-                        me));
+                    std::filesystem::current_path(std::filesystem::path(home));
                 } else {
                     std::cout << "cd: HOME not set" << std::endl;
                 }
