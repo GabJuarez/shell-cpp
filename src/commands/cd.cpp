@@ -2,21 +2,31 @@
 #include <vector>
 #include <filesystem>
 #include <iostream>
-
+#include <unistd.h>
+#include <pwd.h>
 namespace sh::builtins {
     void cd(const std::vector<std::string> &args){
         const std::filesystem::path current = std::filesystem::current_path();
-        std::filesystem::path target_path = args[0];
 
         if (args.size() > 1) {
-            std::cout << "cd: too many arguments" << std::endl;
+            std::cout << "cd: string not in pwd: " << args[0] << std::endl;
             return;
         }
 
         try {
-            if (target_path.empty()) {
+            if (args.empty() == true || args[0] == "~") {
+                uid_t uid = getuid();
+                struct passwd *pw = getpwuid(uid);
+                const char *home = pw->pw_dir;
+
+                if (home != nullptr) {
+                    std::filesystem::current_path(std::filesystem::path(home));
+                } else {
+                    std::cout << "cd: HOME not set" << std::endl;
+                }
 
             }else if (args.size() > 1 && *args[0].begin() == '.') {
+                std::filesystem::path target_path = args[0];
                 target_path = std::filesystem::path(current.string() + "/" + args[0].substr(2, args[0].length()));
                 std::filesystem::current_path(std::filesystem::path(target_path));
             }
