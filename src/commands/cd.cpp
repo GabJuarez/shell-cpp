@@ -15,12 +15,19 @@ namespace sh::builtins {
 
         try {
             if (args.empty() == true || args[0] == "~") {
-                uid_t uid = getuid();
-                struct passwd *pw = getpwuid(uid);
-                const char *home = pw->pw_dir;
+                const char* home;
+
+                if (getenv("HOME") == nullptr) {
+                    uid_t uid = getuid();
+                    struct passwd *pw = getpwuid(uid);
+                    home = pw->pw_dir;
+                }else {
+                    home = getenv("HOME");
+                }
 
                 if (home != nullptr) {
-                    std::filesystem::current_path(std::filesystem::path(home));
+                    std::filesystem::current_path(std::filesystem::path(ho
+                        me));
                 } else {
                     std::cout << "cd: HOME not set" << std::endl;
                 }
