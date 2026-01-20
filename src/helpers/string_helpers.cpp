@@ -40,6 +40,7 @@ std::vector<std::string> split_args(const std::string &r_args) {
     if (escape) {
       buffer += r_args[i];
       escape = false;
+      continue;
     } else if (r_args[i] == '\\' && !inside_double_quotes && !inside_single_quotes) {
       escape = true;
       continue;
