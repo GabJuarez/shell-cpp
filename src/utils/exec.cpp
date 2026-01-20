@@ -1,12 +1,12 @@
-#include "../utils/paths.hpp"
 #include "exec.hpp"
+#include "../utils/paths.hpp"
 #include <filesystem>
 #include <iostream>
 #include <string>
 #include <sys/stat.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <vector>
-#include <sys/wait.h>
 
 namespace fs = std::filesystem;
 
@@ -46,15 +46,16 @@ bool is_executable_cu(const fs::path &p) {
   return false;
 }
 
-void exec_command(std::string &command, std::vector<std::string> &args) {
-  std::optional<std::string> full_path_opt = sh::paths::get_first_entry(command);
-  if(full_path_opt == std::nullopt) {
+void exec_command(const std::string &command, const std::vector<std::string> &args) {
+  std::optional<std::string> full_path_opt =
+      sh::paths::get_first_entry(command);
+  if (full_path_opt == std::nullopt) {
     std::cout << command + ": command not found" << std::endl;
     return;
   }
 
   if (full_path_opt && sh::exec::is_executable_cu(*full_path_opt)) {
-    if(full_path_opt->empty()) {
+    if (full_path_opt->empty()) {
       execvp(command.c_str(), nullptr);
       return;
     }
@@ -70,7 +71,8 @@ void exec_command(std::string &command, std::vector<std::string> &args) {
     argv.push_back(nullptr);
 
     // Forking the process
-    // Fork duplicates the current process and creates a child and a parent process
+    // Fork duplicates the current process and creates a child and a parent
+    // process
     pid_t pid = fork();
     if (pid == 0) {
       // Child: replace process image

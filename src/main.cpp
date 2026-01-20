@@ -1,6 +1,6 @@
 #include "commands/builtins.hpp"
-#include "utils/exec.hpp"
 #include "helpers/helpers.hpp"
+#include "utils/exec.hpp"
 #include <exception>
 #include <functional>
 #include <iostream>
@@ -8,7 +8,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
 
 int main() {
   // Flush after every std::cout / std:cerr
@@ -21,11 +20,21 @@ int main() {
 
   // Mapping the commands so we can use the values to call the functions
   // Using lambdas to adapt the function signatures
-  commands["echo"] = [](const std::vector<std::string> &args) { sh::builtins::echo(args); };
-  commands["type"] = [](const std::vector<std::string> &args) { sh::builtins::type(args); };
-  commands["exit"] = [](const std::vector<std::string> &args) { sh::builtins::exit1(); };
-  commands["pwd"] = [](const std::vector<std::string> &args){ sh::builtins::pwd(); };
-  commands["cd"] = [](const std::vector<std::string> &args){ sh::builtins::cd(args); };
+  commands["echo"] = [](const std::vector<std::string> &args) {
+    sh::builtins::echo(args);
+  };
+  commands["type"] = [](const std::vector<std::string> &args) {
+    sh::builtins::type(args);
+  };
+  commands["exit"] = [](const std::vector<std::string> &args) {
+    sh::builtins::exit1();
+  };
+  commands["pwd"] = [](const std::vector<std::string> &args) {
+    sh::builtins::pwd();
+  };
+  commands["cd"] = [](const std::vector<std::string> &args) {
+    sh::builtins::cd(args);
+  };
 
   while (true) {
     // Display prompt
@@ -48,7 +57,9 @@ int main() {
     ss >> command;
 
     // Removing the command from the stringstream and cleaning side spaces
-    std::string r_args = std::stringstream(helpers::trim(ss.str().substr(command.length()))).str();
+    std::string r_args =
+        std::stringstream(helpers::trim(ss.str().substr(command.length())))
+            .str();
     args = helpers::split_args(r_args);
 
     try {
