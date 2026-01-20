@@ -1,5 +1,6 @@
 #include "commands/builtins.hpp"
 #include "utils/exec.hpp"
+#include "helpers/helpers.hpp"
 #include <exception>
 #include <functional>
 #include <iostream>
@@ -7,13 +8,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-// Forward declarations for commands and helpers implemented in other
-// translation units
-// if the project gets bigger these should be moved to their respective header
-// files
 
-// helpers
-std::string trim(const std::string &str);
 
 int main() {
   // Flush after every std::cout / std:cerr
@@ -44,7 +39,7 @@ int main() {
     }
 
     // removing the spaces from the beginning and end of the string
-    input = trim(input);
+    input = helpers::trim(input);
 
     // Vector to hold command and arguments
     std::vector<std::string> args;
@@ -52,16 +47,9 @@ int main() {
     std::stringstream ss(input);
     ss >> command;
 
-    // Removing the command from the stringstream
-    ss = std::stringstream(ss.str().substr(command.length()));
-    // cleaning the spaces at the beginning after removing the first
-    // word(command)
-    ss = std::stringstream(trim(ss.str()));
-
-    if (!ss.str().empty())
-      while (ss >> input) {
-        args.push_back(input);
-      }
+    // Removing the command from the stringstream and cleaning side spaces
+    std::string r_args = std::stringstream(helpers::trim(ss.str().substr(command.length()))).str();
+    args = helpers::split_args(r_args);
 
     try {
       if (sh::builtins::is_builtin(command)) {
@@ -77,7 +65,7 @@ int main() {
       sh::exec::exec_command(command, args);
       continue;
 
-    } catch (std::exception) {
+    } catch ([[maybe_unused]] std::exception &e) {
       // If the command doesn't exist an error message will be printed
       std::cout << input + ": command not found" << std::endl;
     }
