@@ -28,6 +28,8 @@ std::vector<std::string> split_args(const std::string &r_args) {
   std::string buffer;
   bool inside_single_quotes = false;
   bool inside_double_quotes = false;
+  bool escape = false;
+
 
   for (int i = 0; i < r_args.length(); i++) {
     if (!buffer.empty() && r_args[i] == '\n') {
@@ -35,7 +37,13 @@ std::vector<std::string> split_args(const std::string &r_args) {
       return res;
     }
 
-    if (r_args[i] == '\'' && !inside_double_quotes) {
+    if (escape) {
+      buffer += r_args[i];
+      escape = false;
+    } else if (r_args[i] == '\\' && !inside_double_quotes && !inside_single_quotes) {
+      escape = true;
+      continue;
+    } else if (r_args[i] == '\'' && !inside_double_quotes) {
       inside_single_quotes = !inside_single_quotes;
       continue;
     } else if (r_args[i] == '\"' && !inside_single_quotes) {
