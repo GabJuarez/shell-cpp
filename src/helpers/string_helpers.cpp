@@ -36,12 +36,11 @@ std::vector<std::string> split_args(const std::string &r_args) {
       res = {};
       return res;
     }
-
-    if (escape) {
+    else if (escape) {
       buffer += r_args[i];
       escape = false;
       continue;
-    } else if (r_args[i] == '\\' && !inside_double_quotes && !inside_single_quotes) {
+    } else if ((r_args[i] == '\\' && !inside_double_quotes && !inside_single_quotes) || (inside_double_quotes && r_args[i] == '\\') || (inside_single_quotes && r_args[i] == '\\')) {
       escape = true;
       continue;
     } else if (r_args[i] == '\'' && !inside_double_quotes) {
