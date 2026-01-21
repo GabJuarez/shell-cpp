@@ -47,27 +47,29 @@ int main() {
       continue;
     }
 
-    // removing the spaces from the beginning and end of the string
+    // Removing the spaces from the beginning and end of the string
     input = helpers::trim(input);
 
+    // If it begins with quotes it'll try to execute the file
     if (input[0] == '\'' || input[0] == '\"') {
       std::vector<std::string> exec = helpers::split_args(input);
       const std::string file = exec[0];
       exec.erase(exec.begin());
 
-      // std::cout << "vector: ";
+      //simple debug
+      // std::cout << "Vector : ";
       // for (std::string &s : exec) {
       //   std::cout << s << " ";
       // }
       // std::cout << std::endl;
-      // std::cout << "Archivo: " << file << std::endl;
-
+      // std::cout << "File: " << file;
 
       sh::exec::exec_command(file, exec);
       continue;
 
     }
 
+    // If not quotes
     // Vector to hold command and arguments
     std::vector<std::string> args;
     std::string command;
