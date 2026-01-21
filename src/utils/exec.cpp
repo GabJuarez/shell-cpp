@@ -48,13 +48,13 @@ bool is_executable_cu(const fs::path &p) {
 
 void exec_command(const std::string &command, const std::vector<std::string> &args) {
   std::optional<std::string> full_path_opt =
-      sh::paths::get_first_entry(command);
+      paths::get_first_entry(command);
   if (full_path_opt == std::nullopt) {
     std::cout << command + ": command not found" << std::endl;
     return;
   }
 
-  if (full_path_opt && sh::exec::is_executable_cu(*full_path_opt)) {
+  if (full_path_opt && is_executable_cu(*full_path_opt)) {
     if (full_path_opt->empty()) {
       execvp(command.c_str(), nullptr);
       return;
@@ -84,7 +84,6 @@ void exec_command(const std::string &command, const std::vector<std::string> &ar
       int status;
       waitpid(pid, &status, 0);
     }
-    return;
   }
 }
 

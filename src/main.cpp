@@ -52,16 +52,20 @@ int main() {
 
     if (input[0] == '\'' || input[0] == '\"') {
       std::vector<std::string> exec = helpers::split_args(input);
-      const std::string &file = exec[0];
+      const std::string file = exec[0];
       exec.erase(exec.begin());
 
-      try {
-        sh::exec::exec_command(file, exec);
-        continue;
-      } catch ([[maybe_unused]] std::exception &e) {
-      // If the command doesn't exist an error message will be printed
-      std::cout << input + ": command not found" << std::endl;
-      }
+      // std::cout << "vector: ";
+      // for (std::string &s : exec) {
+      //   std::cout << s << " ";
+      // }
+      // std::cout << std::endl;
+      // std::cout << "Archivo: " << file << std::endl;
+
+
+      sh::exec::exec_command(file, exec);
+      continue;
+
     }
 
     // Vector to hold command and arguments
