@@ -36,15 +36,20 @@ namespace helpers {
         res = {};
         return res;
       }
-      else if ((escape && inside_double_quotes && ( r_args[i] == '\"' || r_args[i] == '$' || r_args[i]== '`')) || escape){
-        if (inside_double_quotes && r_args[i] == 'n') {
+      else if ((escape && inside_double_quotes && ( r_args[i] == '\"' || r_args[i] == '$' || r_args[i]== '`'))){
+        if (r_args[i] == 'n') {
           res.push_back(buffer);
           buffer = "<newline>";
           res.push_back(buffer);
           buffer = "";
+          escape = false;
           continue;
-
         }
+        buffer += r_args[i];
+        escape = false;
+        continue;
+      } else if (inside_double_quotes && escape) {
+        buffer += '\\';
         buffer += r_args[i];
         escape = false;
         continue;
