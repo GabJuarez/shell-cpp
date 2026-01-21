@@ -57,12 +57,12 @@ int main() {
       exec.erase(exec.begin());
 
       //simple debug
-      // std::cout << "Vector : ";
-      // for (std::string &s : exec) {
-      //   std::cout << s << " ";
-      // }
-      // std::cout << std::endl;
-      // std::cout << "File: " << file;
+      std::cout << "Vector : ";
+      for (std::string &s : exec) {
+        std::cout << s << " ";
+      }
+      std::cout << std::endl;
+      std::cout << "File: " << file;
 
       sh::exec::exec_command(file, exec);
       continue;

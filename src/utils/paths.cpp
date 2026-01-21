@@ -19,7 +19,7 @@ std::vector<std::string> get_all_entries(const std::filesystem::path &path) {
 }
 
 std::optional<std::string> get_first_entry(const std::string &command) {
-  std::vector<std::filesystem::path> paths = sh::paths::get_paths();
+  std::vector<std::filesystem::path> paths = get_paths();
   try {
     for (const auto &path : paths) {
       for (const auto &entry :
