@@ -50,6 +50,20 @@ int main() {
     // removing the spaces from the beginning and end of the string
     input = helpers::trim(input);
 
+    if (input[0] == '\'' || input[0] == '\"') {
+      std::vector<std::string> exec = helpers::split_args(input);
+      const std::string &file = exec[0];
+      exec.erase(exec.begin());
+
+      try {
+        sh::exec::exec_command(file, exec);
+        continue;
+      } catch ([[maybe_unused]] std::exception &e) {
+      // If the command doesn't exist an error message will be printed
+      std::cout << input + ": command not found" << std::endl;
+      }
+    }
+
     // Vector to hold command and arguments
     std::vector<std::string> args;
     std::string command;
