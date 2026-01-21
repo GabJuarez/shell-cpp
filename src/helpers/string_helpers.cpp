@@ -36,7 +36,8 @@ namespace helpers {
         res = {};
         return res;
       }
-      else if ((escape && inside_double_quotes && ( r_args[i] == '\"' || r_args[i] == '$' || r_args[i]== '`' || r_args[i] == '\\'))){
+      else if ((escape && inside_double_quotes && ( r_args[i] == '\"' || r_args[i] == '$' || r_args[i]== '`' || r_args[i] == '\\'))
+                || (!inside_double_quotes && !inside_single_quotes && escape)){
         if (r_args[i] == 'n') {
           res.push_back(buffer);
           buffer = "<newline>";
