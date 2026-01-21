@@ -43,6 +43,7 @@ namespace helpers {
           res.push_back(buffer);
           buffer = "";
           continue;
+
         }
         buffer += r_args[i];
         escape = false;
