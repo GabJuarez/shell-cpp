@@ -48,9 +48,6 @@ bool is_executable_cu(const fs::path &p) {
 
 void exec_command(const std::string &command, const std::vector<std::string> &args) {
   std::optional<std::string> full_path_opt = paths::get_first_entry(command);
-  if (full_path_opt == std::nullopt) {
-    full_path_opt = "./";
-  }
 
   if (full_path_opt == std::nullopt) {
     std::cout << command + ": command not found" << std::endl;
