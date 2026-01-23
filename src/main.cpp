@@ -8,7 +8,6 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <fstream>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -82,7 +81,7 @@ int main() {
                 .str();
         args = helpers::parser(r_args);
 
-        if (r_args.find('>') == r_args.npos) {
+        if (r_args.find('>') == std::string::npos && r_args.find("2>") == std::string::npos) {
             try {
                 if (sh::builtins::is_builtin(command)) {
                     // Calling the funct with the correct map depending on the args number
@@ -101,50 +100,66 @@ int main() {
             }
         } else {
             try {
-                bool found = false;
+                bool rd_stdout = false;
+                bool rd_stderr = false;
                 std::vector<std::string> b_operator;
                 const char *file_name;
 
                 for (auto &s: args) {
                     if (s == ">") {
-                        found = true;
+                        rd_stdout = true;
                         continue;
                     }
-                    if (!found) {
+                    if (s == "2>") {
+                        rd_stderr = true;
+                        continue;
+                    }
+                    if (!rd_stdout && !rd_stderr) {
                         b_operator.push_back(s);
                         continue;
                     }
                     file_name = s.c_str();
                 }
 
+                // Store defaults fds
+                int old_stdout = dup(1);
+                int old_stderr = dup(2);
 
-                // Store default stdout buffer
-                int old = dup(1);
+                if (rd_stdout) {
+                    // getting file's fd
+                    if (int fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0644); fd != -1) {
+                        // Redirect the stdout to that fd
+                        dup2(fd, 1);
+                    }
+                }
 
-                // Open with posix funct
-                int fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-                if (fd != -1) {
-                    // If open could get the file descriptor
-                    // Redirect the stdout to that fd
-                    dup2(fd, 1);
+                if (rd_stderr) {
+                    // getting file's fd
+                    if (int fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0644); fd != -1) {
+                        // Redirect the stdout to that fd
+                        dup2(fd, 2);
+                    }
                 }
 
                 if (sh::builtins::is_builtin(command)) {
-                    // Calling the funct with the correct map depending on the args number
                     if (args.empty()) {
                         commands[command]({});
-                        dup2(old, 1);
+                        if (rd_stdout) dup2(old_stdout, 1);
+                        if (rd_stderr) dup2(old_stderr, 2);
                         continue;
                     }
                     commands[command](b_operator);
-                    dup2(old, 1);
+                    if (rd_stdout) dup2(old_stdout, 1);
+                    if (rd_stderr) dup2(old_stderr, 2);
                     continue;
                 }
-                // If it's not a builtin we try to execute the bin
+                // If it's not a builtin, try to execute the bin
                 sh::exec::exec_command(command, b_operator);
 
-                // Redirect again the cout's buff to its default
-                dup2(old, 1);
+                // Redirect again the fds to their default
+                if (rd_stdout) dup2(old_stdout, 1);
+                if (rd_stderr) dup2(old_stderr, 2);
+
                 continue;
             } catch ([[maybe_unused]] std::exception &e) {
                 std::cout << input + ": command not found" << std::endl;

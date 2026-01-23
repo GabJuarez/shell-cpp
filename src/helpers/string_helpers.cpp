@@ -43,6 +43,11 @@ namespace helpers {
                         res.push_back(buffer);
                         buffer = "";
                         continue;
+                    } else if (buffer.length() == 1 && buffer[0] == '2') {
+                        buffer += r_args[i];
+                        res.push_back(buffer);
+                        buffer = "";
+                        continue;
                     }
                     res.push_back(buffer);
                     buffer = "";
