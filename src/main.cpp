@@ -8,6 +8,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <fstream>
 
 int main() {
     // Flush after every std::cout / std:cerr
@@ -79,22 +80,70 @@ int main() {
                 .str();
         args = helpers::parser(r_args);
 
-        try {
-            if (sh::builtins::is_builtin(command)) {
-                // Calling the funct with the correct map depending on the args number
-                if (args.empty()) {
-                    commands[command]({});
+        if (r_args.find('>') == r_args.npos) {
+            try {
+                if (sh::builtins::is_builtin(command)) {
+                    // Calling the funct with the correct map depending on the args number
+                    if (args.empty()) {
+                        commands[command]({});
+                        continue;
+                    }
+                    commands[command](args);
                     continue;
                 }
-                commands[command](args);
-                continue;
-            }
 
-            sh::exec::exec_command(command, args);
-            continue;
-        } catch ([[maybe_unused]] std::exception &e) {
-            // If the command doesn't exist an error message will be printed
-            std::cout << input + ": command not found" << std::endl;
+                sh::exec::exec_command(command, args);
+            } catch ([[maybe_unused]] std::exception &e) {
+                // If the command doesn't exist an error message will be printed
+                std::cout << input + ": command not found" << std::endl;
+            }
+        } else {
+            try {
+                bool found = false;
+                std::vector<std::string> b_operator;
+                std::string file_name;
+
+                for (auto &s: args) {
+                    if (s == ">") {
+                        found = true;
+                    }
+                    if (!found) {
+                        b_operator.push_back(s);
+                        continue;
+                    }
+                    file_name = s;
+                }
+
+                // The file that we're redirecting the output to
+                std::ofstream outfile;
+                outfile.open(file_name);
+
+                // Store default cout's buffer
+                std::streambuf *cout_buf = std::cout.rdbuf();
+
+                // Get the streambuf of the file
+                std::streambuf *file_buf = outfile.rdbuf();
+
+                // Redirect the o buffer
+                std::cout.rdbuf(file_buf);
+
+                if (sh::builtins::is_builtin(command)) {
+                    // Calling the funct with the correct map depending on the args number
+                    if (args.empty()) {
+                        commands[command]({});
+                        std::cout.rdbuf(cout_buf);
+                        continue;
+                    }
+                    commands[command](b_operator);
+                    std::cout.rdbuf(cout_buf);
+                    continue;
+                }
+
+                sh::exec::exec_command(command, args);
+                std::cout.rdbuf(cout_buf);
+            } catch ([[maybe_unused]] std::exception &e) {
+                std::cout << input + ": command not found" << std::endl;
+            }
         }
     }
 }
