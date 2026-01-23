@@ -140,7 +140,7 @@ int main() {
                     continue;
                 }
 
-                sh::exec::exec_command(command, args);
+                sh::exec::exec_command(command, b_operator);
                 std::cout.rdbuf(cout_buf);
             } catch ([[maybe_unused]] std::exception &e) {
                 std::cout << input + ": command not found" << std::endl;
