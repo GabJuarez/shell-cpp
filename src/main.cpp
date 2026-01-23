@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <vector>
 #include <fstream>
+#include <unistd.h>
+#include <fcntl.h>
 
 int main() {
     // Flush after every std::cout / std:cerr
@@ -101,7 +103,7 @@ int main() {
             try {
                 bool found = false;
                 std::vector<std::string> b_operator;
-                std::string file_name;
+                const char *file_name;
 
                 for (auto &s: args) {
                     if (s == ">") {
@@ -112,36 +114,38 @@ int main() {
                         b_operator.push_back(s);
                         continue;
                     }
-                    file_name = s;
+                    file_name = s.c_str();
                 }
 
-                // The file that we're redirecting the output to
-                std::ofstream outfile;
-                outfile.open(file_name);
 
-                // Store default cout's buffer
-                std::streambuf *cout_buf = std::cout.rdbuf();
+                // Store default stdout buffer
+                int old = dup(1);
 
-                // Get the streambuf of the file
-                std::streambuf *file_buf = outfile.rdbuf();
-
-                // Redirect the o buffer
-                std::cout.rdbuf(file_buf);
+                // Open with posix funct
+                int fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+                if (fd != -1) {
+                    // If open could get the file descriptor
+                    // Redirect the stdout to that fd
+                    dup2(fd, 1);
+                }
 
                 if (sh::builtins::is_builtin(command)) {
                     // Calling the funct with the correct map depending on the args number
                     if (args.empty()) {
                         commands[command]({});
-                        std::cout.rdbuf(cout_buf);
+                        dup2(old, 1);
                         continue;
                     }
                     commands[command](b_operator);
-                    std::cout.rdbuf(cout_buf);
+                    dup2(old, 1);
                     continue;
                 }
-
+                // If it's not a builtin we try to execute the bin
                 sh::exec::exec_command(command, b_operator);
-                std::cout.rdbuf(cout_buf);
+
+                // Redirect again the cout's buff to its default
+                dup2(old, 1);
+                continue;
             } catch ([[maybe_unused]] std::exception &e) {
                 std::cout << input + ": command not found" << std::endl;
             }
