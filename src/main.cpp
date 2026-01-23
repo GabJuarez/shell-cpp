@@ -108,7 +108,6 @@ int main() {
                 const char *file_name;
 
                 for (auto &s: args) {
-                    std::cout << "Arg: " << s << std::endl;
                     if (s == ">" || s == "1>") {
                         rd_stdout = true;
                         continue;
