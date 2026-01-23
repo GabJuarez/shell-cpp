@@ -102,11 +102,14 @@ int main() {
             try {
                 bool rd_stdout = false;
                 bool rd_stderr = false;
+                bool app_stdout = false;
+
                 std::vector<std::string> b_operator;
                 const char *file_name;
 
                 for (auto &s: args) {
-                    if (s == ">") {
+                    std::cout << "Arg: " << s << std::endl;
+                    if (s == ">" || s == "1>") {
                         rd_stdout = true;
                         continue;
                     }
@@ -114,7 +117,12 @@ int main() {
                         rd_stderr = true;
                         continue;
                     }
-                    if (!rd_stdout && !rd_stderr) {
+
+                    if (s == ">>" || s == "1>>") {
+                        app_stdout = true;
+                        continue;
+                    }
+                    if (!rd_stdout && !rd_stderr && !app_stdout) {
                         b_operator.push_back(s);
                         continue;
                     }
@@ -133,6 +141,15 @@ int main() {
                     }
                 }
 
+                // Append instead of truncate the file
+                if (app_stdout) {
+                    // getting file's fd
+                    if (int fd = open(file_name, O_WRONLY | O_CREAT | O_APPEND, 0644); fd != -1) {
+                        // Redirect the stdout to that fd
+                        dup2(fd, 1);
+                    }
+                }
+
                 if (rd_stderr) {
                     // getting file's fd
                     if (int fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0644); fd != -1) {
@@ -146,11 +163,13 @@ int main() {
                         commands[command]({});
                         if (rd_stdout) dup2(old_stdout, 1);
                         if (rd_stderr) dup2(old_stderr, 2);
+                        if (app_stdout) dup2(old_stdout, 1);
                         continue;
                     }
                     commands[command](b_operator);
                     if (rd_stdout) dup2(old_stdout, 1);
                     if (rd_stderr) dup2(old_stderr, 2);
+                    if (app_stdout) dup2(old_stdout, 1);
                     continue;
                 }
                 // If it's not a builtin, try to execute the bin
@@ -158,6 +177,7 @@ int main() {
 
                 // Redirect again the fds to their default
                 if (rd_stdout) dup2(old_stdout, 1);
+                if (app_stdout) dup2(old_stdout, 1);
                 if (rd_stderr) dup2(old_stderr, 2);
 
                 continue;

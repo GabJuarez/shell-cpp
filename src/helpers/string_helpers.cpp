@@ -36,26 +36,25 @@ namespace helpers {
                 res = {};
                 return res;
             } else if (!inside_double_quotes && !inside_single_quotes && r_args[i] == '>') {
-                if (!buffer.empty()) {
-                    if (buffer.length() == 1 && buffer[0] == '1') {
-                        buffer = "";
-                        buffer += r_args[i];
-                        res.push_back(buffer);
-                        buffer = "";
-                        continue;
-                    } else if (buffer.length() == 1 && buffer[0] == '2') {
-                        buffer += r_args[i];
-                        res.push_back(buffer);
-                        buffer = "";
-                        continue;
-                    }
-                    res.push_back(buffer);
-                    buffer = "";
+                if (buffer.empty()) {
                     buffer += r_args[i];
-                    res.push_back(buffer);
-                    buffer = "";
                     continue;
                 }
+
+                if (buffer.length() == 1 && (r_args[i - 1] == '1' || r_args[i - 1] == '2')) {
+                    buffer += r_args[i];
+                    continue;
+                } else if (buffer.length() == 2 && (
+                               (r_args[i - 2] == '1' || r_args[i - 2] == '2') && r_args[i - 1] == '>')) {
+                    buffer += r_args[i];
+                    res.push_back(buffer);
+                    buffer.clear();
+                    continue;
+                }
+                buffer += r_args[i];
+                res.push_back(buffer);
+                buffer.clear();
+                continue;
             } else if ((escape && inside_double_quotes && (
                             r_args[i] == '\"' || r_args[i] == '$' || r_args[i] == '`' || r_args[i] == '\\'))
                        || (!inside_double_quotes && !inside_single_quotes && escape)) {
