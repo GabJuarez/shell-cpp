@@ -89,6 +89,7 @@ int main() {
                         continue;
                     }
                     commands[command](args);
+                    std::cout << "Hola" << std::endl;
                     continue;
                 }
 
