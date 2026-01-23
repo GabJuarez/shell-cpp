@@ -89,7 +89,6 @@ int main() {
                         continue;
                     }
                     commands[command](args);
-                    std::cout << "Hola" << std::endl;
                     continue;
                 }
 
@@ -107,6 +106,7 @@ int main() {
                 for (auto &s: args) {
                     if (s == ">") {
                         found = true;
+                        continue;
                     }
                     if (!found) {
                         b_operator.push_back(s);
