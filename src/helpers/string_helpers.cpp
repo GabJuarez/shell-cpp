@@ -37,6 +37,13 @@ namespace helpers {
                 return res;
             } else if (!inside_double_quotes && !inside_single_quotes && r_args[i] == '>') {
                 if (!buffer.empty()) {
+                    if (buffer.length() == 1 && buffer[0] == '1') {
+                        buffer = "";
+                        buffer += r_args[i];
+                        res.push_back(buffer);
+                        buffer = "";
+                        continue;
+                    }
                     res.push_back(buffer);
                     buffer = "";
                     buffer += r_args[i];
