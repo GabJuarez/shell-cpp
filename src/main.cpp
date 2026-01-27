@@ -11,10 +11,17 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include <readline/readline.h>
+#include <readline/history.h>
+#include "completion/completion.hpp"
+
 int main() {
     // Flush after every std::cout / std:cerr
     std::cout << std::unitbuf;
     std::cerr << std::unitbuf;
+
+    // Initialize readline completion for builtins
+    completion::initialize();
 
     // Map wiht optional arguments
     std::unordered_map<std::string, std::function<void(std::vector<std::string>)> >
@@ -39,18 +46,30 @@ int main() {
     };
 
     while (true) {
-        // Display prompt
-        std::cout << "$ " << std::flush;
+        // Display prompt and read input using readline so TAB completion works
+        char *raw_line = readline("$ ");
+        if (!raw_line) {
+            // EOF (Ctrl+D) -> exit shell
+            break;
+        }
 
-        // Read user input
-        std::string input;
-        std::getline(std::cin, input);
+        std::string input(raw_line);
+        // readline allocates with malloc
+        std::free(raw_line);
+
         if (input.empty()) {
             continue;
         }
 
         // Removing the spaces from the beginning and end of the string
         input = helpers::trim(input);
+
+        if (input.empty()) {
+            continue;
+        }
+
+        // Add non-empty lines to history
+        add_history(input.c_str());
 
         // If it begins with quotes it'll try to execute the file
         if (input[0] == '\'' || input[0] == '\"') {
