@@ -11,6 +11,7 @@ namespace helpers {
         auto start = str.begin();
         auto end = str.end();
 
+
         while (start != end && std::isspace(*start)) {
             ++start;
         }
