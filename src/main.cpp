@@ -25,10 +25,14 @@ int main() {
     completion::initialize();
 
     // History persistence configuration
-    const char *hist_env = std::getenv("SHELL_HISTORY_FILE");
+    // Prefer HISTFILE (standard) -> fallback to SHELL_HISTORY_FILE -> default
+    const char *hist_env_std = std::getenv("HISTFILE");
+    const char *hist_env_alt = std::getenv("SHELL_HISTORY_FILE");
     std::string history_file;
-    if (hist_env && hist_env[0] != '\0') {
-        history_file = hist_env;
+    if (hist_env_std && hist_env_std[0] != '\0') {
+        history_file = hist_env_std;
+    } else if (hist_env_alt && hist_env_alt[0] != '\0') {
+        history_file = hist_env_alt;
     } else {
         const char *home = std::getenv("HOME");
         history_file = (home ? std::string(home) : std::string(".")) + "/.shell_history";
