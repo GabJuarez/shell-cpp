@@ -80,6 +80,32 @@ namespace sh::builtins {
             }
         }
 
+        // If a single numeric argument is provided, print the last n entries
+        if (args.size() == 1) {
+            const std::string &a = args[0];
+            bool is_number = !a.empty();
+            for (char c: a) if (!std::isdigit((unsigned char) c)) {
+                is_number = false;
+                break;
+            }
+            if (is_number) {
+                int n = 0;
+                try {
+                    n = std::stoi(a);
+                } catch (...) { n = 0; }
+                if (n < 0) n = 0;
+                int start = history_length - n;
+                if (start < 0) start = 0;
+                for (int i = start; i < history_length; ++i) {
+                    HIST_ENTRY *ent = history_get(i + 1);
+                    if (ent && ent->line) {
+                        std::cout << std::setw(5) << (i + 1) << "  " << ent->line << std::endl;
+                    }
+                }
+                return;
+            }
+        }
+
         // No options: print numbered history similar to bash
         for (int i = 0; i < history_length; ++i) {
             HIST_ENTRY *ent = history_get(i + 1);
