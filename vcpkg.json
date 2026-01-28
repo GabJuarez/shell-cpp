@@ -1,3 +1,7 @@
 {
-    "dependencies": []
+    "name": "shell-cpp",
+    "version": "0.1.0",
+    "dependencies": [
+        "readline"
+    ]
 }

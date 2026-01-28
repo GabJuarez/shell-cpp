@@ -1045,3 +1045,25 @@ dkms.conf
 *.dis
 
 vcpkg_installed
+
+# -------------------------
+# Project-specific ignores (normalized)
+# -------------------------
+# Ninja build artifacts
+build.ninja
+.ninja_log
+.ninja_deps
+
+# Build directories (CMake/Ninja)
+/build/
+/cmake-build-*/
+
+# Keep source and build scripts under version control:
+# src/
+# CMakeLists.txt
+# your_program.sh
+# vcpkg.json, vcpkg-configuration.json
+
+.codecrafters/
+.idea/
+.cmake/
