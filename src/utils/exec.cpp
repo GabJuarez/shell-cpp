@@ -1,5 +1,6 @@
 #include "exec.hpp"
 #include "../utils/paths.hpp"
+#include "../commands/builtins.hpp"
 #include <filesystem>
 #include <iostream>
 #include <signal.h>
@@ -16,17 +17,14 @@ namespace sh::exec {
         // Alias so I don't have to rewrite
         fs::perms perms = fs::status(p).permissions();
 
-        // struct to save the file's info
         struct stat st{};
         if (stat(p.c_str(), &st) != 0) {
             std::cout << "not found" << std::endl;
         }
 
-        // info of the current user
         uid_t uid = getuid();
         gid_t gid = getgid();
 
-        // file's owner
         uid_t fo = st.st_uid;
         gid_t fg = st.st_gid;
 
@@ -95,22 +93,30 @@ namespace sh::exec {
         const std::string left_name = left_cmd[0];
         const std::string right_name = right_cmd[0];
 
-        std::optional<std::string> left_path = paths::get_first_entry(left_name);
-        std::optional<std::string> right_path = paths::get_first_entry(right_name);
+        bool left_is_builtin = sh::builtins::is_builtin(left_name);
+        bool right_is_builtin = sh::builtins::is_builtin(right_name);
 
-        if (!left_path) {
+        std::optional<std::string> left_path = std::nullopt;
+        std::optional<std::string> right_path = std::nullopt;
+
+        if (!left_is_builtin) left_path = paths::get_first_entry(left_name);
+        if (!right_is_builtin) right_path = paths::get_first_entry(right_name);
+
+        if (!left_is_builtin && !left_path) {
             std::cout << left_name << ": command not found" << std::endl;
             return;
         }
-        if (!right_path) {
+        if (!right_is_builtin && !right_path) {
             std::cout << right_name << ": command not found" << std::endl;
             return;
         }
 
-        if (!is_executable_cu(*left_path) || !is_executable_cu(*right_path)) {
-            // If not executable, print error
-            if (!is_executable_cu(*left_path)) std::cout << left_name << ": not executable" << std::endl;
-            if (!is_executable_cu(*right_path)) std::cout << right_name << ": not executable" << std::endl;
+        if (!left_is_builtin && left_path && !is_executable_cu(*left_path)) {
+            std::cout << left_name << ": not executable" << std::endl;
+            return;
+        }
+        if (!right_is_builtin && right_path && !is_executable_cu(*right_path)) {
+            std::cout << right_name << ": not executable" << std::endl;
             return;
         }
 
@@ -130,7 +136,6 @@ namespace sh::exec {
 
         if (left_pid == 0) {
             // Left child: write end -> stdout
-            // Close read end
             close(pipefd[0]);
             if (dup2(pipefd[1], STDOUT_FILENO) == -1) {
                 perror("dup2");
@@ -138,21 +143,35 @@ namespace sh::exec {
             }
             close(pipefd[1]);
 
-            // Prepare argv
-            std::vector<char *> argv_left;
-            argv_left.push_back(const_cast<char *>(left_name.c_str()));
-            for (size_t i = 1; i < left_cmd.size(); ++i) argv_left.push_back(const_cast<char *>(left_cmd[i].c_str()));
-            argv_left.push_back(nullptr);
+            if (left_is_builtin) {
+                // Prepare args (exclude command)
+                std::vector<std::string> bargs;
+                for (size_t i = 1; i < left_cmd.size(); ++i) bargs.push_back(left_cmd[i]);
 
-            execvp(left_path->c_str(), argv_left.data());
-            perror("execvp");
-            _exit(1);
+                if (left_name == "echo") sh::builtins::echo(bargs);
+                else if (left_name == "type") sh::builtins::type(bargs);
+                else if (left_name == "pwd") sh::builtins::pwd();
+                else if (left_name == "cd") sh::builtins::cd(bargs);
+                else if (left_name == "exit") sh::builtins::exit1();
+                _exit(0);
+            } else {
+                // External command
+                std::vector<char *> argv_left;
+                argv_left.push_back(const_cast<char *>(left_name.c_str()));
+                for (size_t i = 1; i < left_cmd.size(); ++i)
+                    argv_left.push_back(
+                        const_cast<char *>(left_cmd[i].c_str()));
+                argv_left.push_back(nullptr);
+
+                execvp(left_path->c_str(), argv_left.data());
+                perror("execvp");
+                _exit(1);
+            }
         }
 
         pid_t right_pid = fork();
         if (right_pid == -1) {
             perror("fork");
-            // Attempt to clean up left child
             kill(left_pid, SIGKILL);
             close(pipefd[0]);
             close(pipefd[1]);
@@ -168,17 +187,28 @@ namespace sh::exec {
             }
             close(pipefd[0]);
 
-            // Prepare argv for right command
-            std::vector<char *> argv_right;
-            argv_right.push_back(const_cast<char *>(right_name.c_str()));
-            for (size_t i = 1; i < right_cmd.size(); ++i)
-                argv_right.
-                        push_back(const_cast<char *>(right_cmd[i].c_str()));
-            argv_right.push_back(nullptr);
+            if (right_is_builtin) {
+                std::vector<std::string> bargs;
+                for (size_t i = 1; i < right_cmd.size(); ++i) bargs.push_back(right_cmd[i]);
 
-            execvp(right_path->c_str(), argv_right.data());
-            perror("execvp");
-            _exit(1);
+                if (right_name == "echo") sh::builtins::echo(bargs);
+                else if (right_name == "type") sh::builtins::type(bargs);
+                else if (right_name == "pwd") sh::builtins::pwd();
+                else if (right_name == "cd") sh::builtins::cd(bargs);
+                else if (right_name == "exit") sh::builtins::exit1();
+                _exit(0);
+            } else {
+                std::vector<char *> argv_right;
+                argv_right.push_back(const_cast<char *>(right_name.c_str()));
+                for (size_t i = 1; i < right_cmd.size(); ++i)
+                    argv_right.push_back(
+                        const_cast<char *>(right_cmd[i].c_str()));
+                argv_right.push_back(nullptr);
+
+                execvp(right_path->c_str(), argv_right.data());
+                perror("execvp");
+                _exit(1);
+            }
         }
 
         // Parent: close pipe fds and wait for both children
