@@ -1,34 +1,141 @@
-[![progress-banner](https://backend.codecrafters.io/progress/shell/23dafe17-8acd-4913-8c16-fdbb3d6f405e)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
+# shell-cpp
 
-This is a starting point for C++ solutions to the
-["Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview).
+![C++](https://img.shields.io/badge/C%2B%2B-23-blue?logo=c%2B%2B&logoColor=white)
+![CMake](https://img.shields.io/badge/CMake-3.13+-064F8C?logo=cmake&logoColor=white)
+![vcpkg](https://img.shields.io/badge/vcpkg-manifest-5C2D91)
 
-In this challenge, you'll build your own POSIX compliant shell that's capable of
-interpreting shell commands, running external programs and builtin commands like
-cd, pwd, echo and more. Along the way, you'll learn about shell command parsing,
-REPLs, builtin commands, and more.
+A small, focused example of a minimal interactive shell written in modern C++
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+Preview
+------------------
+![preview.gif](assets/preview.gif)
 
-# Passing the first stage
+Why this project?
+------------------
+This repository contains a compact shell implementation intended as a learning project and a starting point for experimenting with command parsing, builtins, and simple tab-completion. It favors clarity and small, well-scoped components.
 
-The entry point for your `shell` implementation is in `src/main.cpp`. Study and
-uncomment the relevant code, and push your changes to pass the first stage:
+Highlights 
+----------
+- Interactive line editing, history and completion via **GNU readline**
+- Small builtin command set: **cd**, **pwd**, **echo**, **history**, **type**, **exit**
+- Cleanly structured code: parser, completion, commands, helpers and utils
+- Optional dependency management via **vcpkg** for reproducible builds
 
-```sh
-git commit -am "pass 1st stage" # any msg
-git push origin master
+Features
+--------
+The shell includes a small but useful set of features beyond the basics:
+
+- Multiple pipelines
+  - Chain any number of commands with `|`, e.g.:
+
+  ```bash
+  cmd1 | cmd2 | cmd3
+  ```
+
+- Output redirection
+  - Overwrite a file with `>`:
+  ```bash
+  echo "hello" > out.txt
+  ```
+  - Append to a file with `>>`:
+  ```bash
+  echo "more" >> out.txt
+  ```
+
+- Input redirection
+  - Read stdin from a file using `<`:
+  ```bash
+  sort < unsorted.txt
+  ```
+PATH & executable lookup
+------------------------
+This shell uses the `PATH` environment variable to locate external executables. Key details:
+
+- It reads the `PATH` variable from the environment (the usual `:`-separated list of directories).
+- Each directory in `PATH` is searched in order. The implementation performs a recursive directory scan inside each `PATH` entry and returns the first file whose stem (filename without extension) matches the command name.
+
+Examples
+--------
+- To see your current `PATH`:
+
+```bash
+echo $PATH
 ```
 
-Time to move on to the next stage!
+- Add a custom `bin` directory at the front (preferred for overrides):
 
-# Stage 2 & beyond
+```bash
+export PATH="$HOME/bin:$PATH"
+```
 
-Note: This section is for stages 2 and beyond.
+- Add a custom `bin` directory at the end (fallback):
 
-1. Ensure you have `cmake` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
-   `src/main.cpp`.
-1. Commit your changes and run `git push origin master` to submit your solution
-   to CodeCrafters. Test output will be streamed to your terminal.
+```bash
+export PATH="$PATH:$HOME/mytools/bin"
+```
+
+Notes
+-----------------
+- Because the shell performs a recursive search inside each `PATH` entry, very large directories may slow down command lookup. For best performance, keep `PATH` directories focused (e.g., `/usr/bin`, `/usr/local/bin`, `~/bin`).
+- The shell matches the command name to a file's stem; if multiple candidates exist, the first one found (search order + recursive traversal order) is used.
+- You can always invoke a command by full or relative path to bypass `PATH` lookup, e.g. `./myprog` or `/usr/local/bin/myprog`.
+
+
+Quick start
+-----------
+Clone the repository and pick **one** of the workflows below.
+
+Recommended: build with vcpkg (reproducible)
+This project uses **vcpkg in manifest mode** (`vcpkg.json`).  
+Dependencies are installed **automatically by CMake**.
+
+```bash
+# From project root
+
+# 1) If vcpkg is not present in the repo, clone or place it at ./vcpkg
+# 2) Bootstrap vcpkg (first time only)
+./vcpkg/bootstrap-vcpkg.sh
+
+# 3) Configure the project (this automatically installs dependencies)
+cmake -S . -B build \
+  -DCMAKE_TOOLCHAIN_FILE=./vcpkg/scripts/buildsystems/vcpkg.cmake
+
+# 4) Build
+cmake --build build
+````
+Alternative: use system packages (e.g. Homebrew, apt)
+
+```bash
+# macOS (Homebrew): install readline
+brew install readline
+
+# Debian/Ubuntu:
+sudo apt install libreadline-dev
+
+# Then build normally with CMake
+cmake -S . -B build
+cmake --build build
+```
+If CMake can't find `readline` on macOS, pass the Homebrew prefix:
+```bash
+cmake -S . -B build -DCMAKE_PREFIX_PATH="$(brew --prefix readline)"
+cmake --build build
+```
+
+Run the program (convenience script)
+-----------------------------------
+A small script `program.sh` compiles and runs the binary. It will use the vcpkg toolchain if `VCPKG_ROOT` is set.
+
+```bash
+# Make the script executable once
+chmod +x program.sh
+
+# If using vcpkg in ./vcpkg (recommended):
+export VCPKG_ROOT="$PWD/vcpkg"
+./program.sh
+
+# Or, run the binary directly after building:
+./build/shell
+```
+
+
