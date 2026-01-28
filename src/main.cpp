@@ -14,6 +14,7 @@
 #include <readline/history.h>
 #include "completion/completion.hpp"
 #include "parser/parser.hpp"
+#include <cstdlib>
 
 int main() {
     // Flush after every std::cout / std:cerr
@@ -22,6 +23,28 @@ int main() {
 
     // Initialize readline completion for builtins
     completion::initialize();
+
+    // History persistence configuration
+    const char *hist_env = std::getenv("SHELL_HISTORY_FILE");
+    std::string history_file;
+    if (hist_env && hist_env[0] != '\0') {
+        history_file = hist_env;
+    } else {
+        const char *home = std::getenv("HOME");
+        history_file = (home ? std::string(home) : std::string(".")) + "/.shell_history";
+    }
+
+    bool do_read = true;
+    bool do_write = true;
+    const char *hr = std::getenv("SHELL_HISTORY_READ");
+    if (hr && std::string(hr) == "0") do_read = false;
+    const char *hw = std::getenv("SHELL_HISTORY_WRITE");
+    if (hw && std::string(hw) == "0") do_write = false;
+
+    if (do_read) {
+        // Attempt to read history from file (no failure if file missing)
+        read_history(history_file.c_str());
+    }
 
     // Map wiht optional arguments
     std::unordered_map<std::string, std::function<void(std::vector<std::string>)> >
@@ -72,7 +95,7 @@ int main() {
         add_history(input.c_str());
 
         // If it begins with quotes it'll try to execute the file
-        if (input[0] == '\'' || input[0] == '\"') {
+        if (input[0] == '\'' || input[0] == '"') {
             // Splitting the entire vector
             std::vector<std::string> exec = sh::parser::parse(input);
 
@@ -239,5 +262,10 @@ int main() {
                 std::cout << input + ": command not found" << std::endl;
             }
         }
+    }
+
+    // Write history to file on exit (no failure if file not writable)
+    if (do_write) {
+        write_history(history_file.c_str());
     }
 }
