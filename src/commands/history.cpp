@@ -31,22 +31,34 @@ namespace sh::builtins {
     }
 
     void history(const std::vector<std::string> &args) {
-        // Support at least `history -a <path>`
-        if (args.size() >= 2 && args[0] == "-a") {
+        // Support `history -a <path>` (append) and `history -w <path>` (write)
+        if (args.size() >= 2) {
+            const std::string opt = args[0];
             const std::string path = args[1];
-            // Append only entries that weren't previously appended
-            int start_idx = last_history_length;
-            if (start_idx < 0) start_idx = 0;
-            if (start_idx < history_length) {
-                append_history_range_to_file(path, start_idx);
-                // After appending, update last_history_length to current
-                last_history_length = history_length;
+            if (opt == "-a") {
+                // Append only entries that weren't previously appended
+                int start_idx = last_history_length;
+                if (start_idx < 0) start_idx = 0;
+                if (start_idx < history_length) {
+                    append_history_range_to_file(path, start_idx);
+                    // After appending, update last_history_length to current
+                    last_history_length = history_length;
+                }
+                return;
             }
-            return;
+            if (opt == "-w") {
+                // Write entire history to the specified file (truncate)
+                // Use readline helper which writes the whole in-memory history
+                if (!path.empty()) {
+                    write_history(path.c_str());
+                    // After writing the full history, mark last written index so -a won't reappend
+                    last_history_length = history_length;
+                }
+                return;
+            }
         }
 
         // For any other usage, fallback to printing the history to stdout
-        // (simple behavior to avoid breaking tests that don't use other forms)
         for (int i = 0; i < history_length; ++i) {
             HIST_ENTRY *ent = history_get(i + 1);
             if (ent && ent->line) std::cout << ent->line << std::endl;
