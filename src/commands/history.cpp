@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <string>
+#include <iomanip>
 
 namespace sh::builtins {
     // We track the position (number of entries) of the last written/read history
@@ -30,8 +31,20 @@ namespace sh::builtins {
         }
     }
 
+    // Helper to read a history file and append non-empty lines to in-memory history
+    static void read_history_file_into_memory(const std::string &path) {
+        std::ifstream ifs(path);
+        if (!ifs) return;
+        std::string line;
+        while (std::getline(ifs, line)) {
+            // Skip empty/whitespace-only lines
+            if (line.find_first_not_of(" \t\r\n") == std::string::npos) continue;
+            add_history(line.c_str());
+        }
+    }
+
     void history(const std::vector<std::string> &args) {
-        // Support `history -a <path>` (append) and `history -w <path>` (write)
+        // Support `history -a <path>` (append), `history -w <path>` (write), `history -r <path>` (read)
         if (args.size() >= 2) {
             const std::string opt = args[0];
             const std::string path = args[1];
@@ -56,12 +69,24 @@ namespace sh::builtins {
                 }
                 return;
             }
+            if (opt == "-r") {
+                if (!path.empty()) {
+                    // Read file and append its non-empty lines to in-memory history
+                    read_history_file_into_memory(path);
+                    // Update last_history_length so -a won't reappend these lines
+                    last_history_length = history_length;
+                }
+                return;
+            }
         }
 
-        // For any other usage, fallback to printing the history to stdout
+        // No options: print numbered history similar to bash
         for (int i = 0; i < history_length; ++i) {
             HIST_ENTRY *ent = history_get(i + 1);
-            if (ent && ent->line) std::cout << ent->line << std::endl;
+            if (ent && ent->line) {
+                // Format: right-aligned number in width 5, two spaces, then the line
+                std::cout << std::setw(5) << (i + 1) << "  " << ent->line << std::endl;
+            }
         }
     }
 } // namespace sh::builtins
