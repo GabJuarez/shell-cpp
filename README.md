@@ -41,12 +41,6 @@ The shell includes a small but useful set of features beyond the basics:
   ```bash
   echo "more" >> out.txt
   ```
-
-- Input redirection
-  - Read stdin from a file using `<`:
-  ```bash
-  sort < unsorted.txt
-  ```
   
 PATH & executable lookup
 ------------------------
