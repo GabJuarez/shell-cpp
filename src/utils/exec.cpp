@@ -2,6 +2,7 @@
 #include "../utils/paths.hpp"
 #include <filesystem>
 #include <iostream>
+#include <signal.h>
 #include <string>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -85,5 +86,107 @@ namespace sh::exec {
                 waitpid(pid, &status, 0);
             }
         }
+    }
+
+    void exec_pipeline(const std::vector<std::string> &left_cmd,
+                       const std::vector<std::string> &right_cmd) {
+        if (left_cmd.empty() || right_cmd.empty()) return;
+
+        const std::string left_name = left_cmd[0];
+        const std::string right_name = right_cmd[0];
+
+        std::optional<std::string> left_path = paths::get_first_entry(left_name);
+        std::optional<std::string> right_path = paths::get_first_entry(right_name);
+
+        if (!left_path) {
+            std::cout << left_name << ": command not found" << std::endl;
+            return;
+        }
+        if (!right_path) {
+            std::cout << right_name << ": command not found" << std::endl;
+            return;
+        }
+
+        if (!is_executable_cu(*left_path) || !is_executable_cu(*right_path)) {
+            // If not executable, print error
+            if (!is_executable_cu(*left_path)) std::cout << left_name << ": not executable" << std::endl;
+            if (!is_executable_cu(*right_path)) std::cout << right_name << ": not executable" << std::endl;
+            return;
+        }
+
+        int pipefd[2];
+        if (pipe(pipefd) == -1) {
+            perror("pipe");
+            return;
+        }
+
+        pid_t left_pid = fork();
+        if (left_pid == -1) {
+            perror("fork");
+            close(pipefd[0]);
+            close(pipefd[1]);
+            return;
+        }
+
+        if (left_pid == 0) {
+            // Left child: write end -> stdout
+            // Close read end
+            close(pipefd[0]);
+            if (dup2(pipefd[1], STDOUT_FILENO) == -1) {
+                perror("dup2");
+                _exit(1);
+            }
+            close(pipefd[1]);
+
+            // Prepare argv
+            std::vector<char *> argv_left;
+            argv_left.push_back(const_cast<char *>(left_name.c_str()));
+            for (size_t i = 1; i < left_cmd.size(); ++i) argv_left.push_back(const_cast<char *>(left_cmd[i].c_str()));
+            argv_left.push_back(nullptr);
+
+            execvp(left_path->c_str(), argv_left.data());
+            perror("execvp");
+            _exit(1);
+        }
+
+        pid_t right_pid = fork();
+        if (right_pid == -1) {
+            perror("fork");
+            // Attempt to clean up left child
+            kill(left_pid, SIGKILL);
+            close(pipefd[0]);
+            close(pipefd[1]);
+            return;
+        }
+
+        if (right_pid == 0) {
+            // Right child: read end -> stdin
+            close(pipefd[1]);
+            if (dup2(pipefd[0], STDIN_FILENO) == -1) {
+                perror("dup2");
+                _exit(1);
+            }
+            close(pipefd[0]);
+
+            // Prepare argv for right command
+            std::vector<char *> argv_right;
+            argv_right.push_back(const_cast<char *>(right_name.c_str()));
+            for (size_t i = 1; i < right_cmd.size(); ++i)
+                argv_right.
+                        push_back(const_cast<char *>(right_cmd[i].c_str()));
+            argv_right.push_back(nullptr);
+
+            execvp(right_path->c_str(), argv_right.data());
+            perror("execvp");
+            _exit(1);
+        }
+
+        // Parent: close pipe fds and wait for both children
+        close(pipefd[0]);
+        close(pipefd[1]);
+
+        int status;
+        waitpid(left_pid, &status, 0);
+        waitpid(right_pid, &status, 0);
     }
 } // namespace sh::exec

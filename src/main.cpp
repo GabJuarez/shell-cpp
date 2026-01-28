@@ -10,10 +10,10 @@
 #include <vector>
 #include <unistd.h>
 #include <fcntl.h>
-
 #include <readline/readline.h>
 #include <readline/history.h>
 #include "completion/completion.hpp"
+#include "parser/parser.hpp"
 
 int main() {
     // Flush after every std::cout / std:cerr
@@ -74,7 +74,7 @@ int main() {
         // If it begins with quotes it'll try to execute the file
         if (input[0] == '\'' || input[0] == '\"') {
             // Splitting the entire vector
-            std::vector<std::string> exec = helpers::parser(input);
+            std::vector<std::string> exec = sh::parser::parse(input);
 
             // Keeping the name of the executable in a separated variable
             const std::string file = exec[0];
@@ -99,6 +99,30 @@ int main() {
                 std::stringstream(helpers::trim(ss.str().substr(command.length())))
                 .str();
         args = helpers::parser(r_args);
+
+        // Handle a simple pipeline with a single '|'
+        if (input.find('|') != std::string::npos) {
+            // Only support a single pipeline between two commands for now
+            size_t pipe_pos = input.find('|');
+            std::string left = helpers::trim(input.substr(0, pipe_pos));
+            std::string right = helpers::trim(input.substr(pipe_pos + 1));
+
+            if (!left.empty() && !right.empty()) {
+                std::vector<std::string> left_cmd = sh::parser::parse(left);
+                std::vector<std::string> right_cmd = sh::parser::parse(right);
+
+                // If both commands are non-empty and likely external, run pipeline
+                if (!left_cmd.empty() && !right_cmd.empty()) {
+                    // If either side is a builtin, fall back to existing behavior (not supported)
+                    if (sh::builtins::is_builtin(left_cmd[0]) || sh::builtins::is_builtin(right_cmd[0])) {
+                        // Let normal flow handle builtins (not implemented for pipe)
+                    } else {
+                        sh::exec::exec_pipeline(left_cmd, right_cmd);
+                        continue; // go to next prompt
+                    }
+                }
+            }
+        }
 
         if (r_args.find('>') == std::string::npos && r_args.find("2>") == std::string::npos) {
             try {
