@@ -100,38 +100,31 @@ int main() {
                 .str();
         args = helpers::parser(r_args);
 
-        // Handle a simple pipeline with a single '|'
+        // Handle pipelines (one or multiple '|' operators)
         {
-            // Parse entire input into tokens and look for '|' as a separate token.
+            // Parse entire input into tokens and split on every '|' token.
             std::vector<std::string> all_tokens = sh::parser::parse(input);
-            auto it = std::find(all_tokens.begin(), all_tokens.end(), "|");
-            if (it != all_tokens.end()) {
-                size_t idx = std::distance(all_tokens.begin(), it);
-                // Left tokens: [0, idx)
-                // Right tokens: (idx, end)
-                if (idx > 0 && idx + 1 < all_tokens.size()) {
-                    std::vector<std::string> left_cmd(all_tokens.begin(), all_tokens.begin() + idx);
-                    std::vector<std::string> right_cmd(all_tokens.begin() + idx + 1, all_tokens.end());
-                    if (!left_cmd.empty() && !right_cmd.empty()) {
-                        sh::exec::exec_pipeline(left_cmd, right_cmd);
-                        continue;
-                    }
-                }
-            } else if (input.find('|') != std::string::npos) {
-                // Parser didn't return '|' as a token (some inputs produce an empty token),
-                // fallback to splitting the raw input around the first '|' char.
-                size_t pipe_pos = input.find('|');
-                std::string left = helpers::trim(input.substr(0, pipe_pos));
-                std::string right = helpers::trim(input.substr(pipe_pos + 1));
+            std::vector<std::vector<std::string> > cmds;
+            std::vector<std::string> cur;
 
-                if (!left.empty() && !right.empty()) {
-                    std::vector<std::string> left_cmd = sh::parser::parse(left);
-                    std::vector<std::string> right_cmd = sh::parser::parse(right);
-                    if (!left_cmd.empty() && !right_cmd.empty()) {
-                        sh::exec::exec_pipeline(left_cmd, right_cmd);
-                        continue;
+            for (const auto &t: all_tokens) {
+                if (t == "|") {
+                    if (!cur.empty()) {
+                        cmds.push_back(cur);
+                        cur.clear();
+                    } else {
+                        /* empty stage -> ignore */
                     }
+                } else {
+                    cur.push_back(t);
                 }
+            }
+            if (!cur.empty()) cmds.push_back(cur);
+
+            if (cmds.size() >= 2) {
+                // Execute chain of N commands
+                sh::exec::exec_pipeline_chain(cmds);
+                continue;
             }
         }
 
