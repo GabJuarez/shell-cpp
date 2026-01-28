@@ -47,32 +47,13 @@ The shell includes a small but useful set of features beyond the basics:
   ```bash
   sort < unsorted.txt
   ```
+  
 PATH & executable lookup
 ------------------------
 This shell uses the `PATH` environment variable to locate external executables. Key details:
 
 - It reads the `PATH` variable from the environment (the usual `:`-separated list of directories).
 - Each directory in `PATH` is searched in order. The implementation performs a recursive directory scan inside each `PATH` entry and returns the first file whose stem (filename without extension) matches the command name.
-
-Examples
---------
-- To see your current `PATH`:
-
-```bash
-echo $PATH
-```
-
-- Add a custom `bin` directory at the front (preferred for overrides):
-
-```bash
-export PATH="$HOME/bin:$PATH"
-```
-
-- Add a custom `bin` directory at the end (fallback):
-
-```bash
-export PATH="$PATH:$HOME/mytools/bin"
-```
 
 Notes
 -----------------
