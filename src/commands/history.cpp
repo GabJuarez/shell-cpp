@@ -1,4 +1,3 @@
-
 #include "builtins.hpp"
 #include <readline/history.h>
 #include <fstream>
@@ -42,12 +41,6 @@ namespace sh::builtins {
                 append_history_range_to_file(path, start_idx);
                 // After appending, update last_history_length to current
                 last_history_length = history_length;
-            }
-            // Also record the `history -a <path>` command itself in the file
-            std::ofstream ofs(path, std::ios::app);
-            if (ofs) {
-                // Reconstruct the command for logging
-                ofs << "history -a " << path << std::endl;
             }
             return;
         }
