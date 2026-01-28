@@ -46,6 +46,9 @@ int main() {
         read_history(history_file.c_str());
     }
 
+    // Initialize history module internal state
+    sh::builtins::history_init();
+
     // Map wiht optional arguments
     std::unordered_map<std::string, std::function<void(std::vector<std::string>)> >
             commands;
@@ -66,6 +69,9 @@ int main() {
     };
     commands["cd"] = [](const std::vector<std::string> &args) {
         sh::builtins::cd(args);
+    };
+    commands["history"] = [](const std::vector<std::string> &args) {
+        sh::builtins::history(args);
     };
 
     while (true) {
