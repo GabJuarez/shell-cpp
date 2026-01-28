@@ -101,24 +101,35 @@ int main() {
         args = helpers::parser(r_args);
 
         // Handle a simple pipeline with a single '|'
-        if (input.find('|') != std::string::npos) {
-            // Only support a single pipeline between two commands for now
-            size_t pipe_pos = input.find('|');
-            std::string left = helpers::trim(input.substr(0, pipe_pos));
-            std::string right = helpers::trim(input.substr(pipe_pos + 1));
-
-            if (!left.empty() && !right.empty()) {
-                std::vector<std::string> left_cmd = sh::parser::parse(left);
-                std::vector<std::string> right_cmd = sh::parser::parse(right);
-
-                // If both commands are non-empty and likely external, run pipeline
-                if (!left_cmd.empty() && !right_cmd.empty()) {
-                    // If either side is a builtin, fall back to existing behavior (not supported)
-                    if (sh::builtins::is_builtin(left_cmd[0]) || sh::builtins::is_builtin(right_cmd[0])) {
-                        // Let normal flow handle builtins (not implemented for pipe)
-                    } else {
+        {
+            // Parse entire input into tokens and look for '|' as a separate token.
+            std::vector<std::string> all_tokens = sh::parser::parse(input);
+            auto it = std::find(all_tokens.begin(), all_tokens.end(), "|");
+            if (it != all_tokens.end()) {
+                size_t idx = std::distance(all_tokens.begin(), it);
+                // Left tokens: [0, idx)
+                // Right tokens: (idx, end)
+                if (idx > 0 && idx + 1 < all_tokens.size()) {
+                    std::vector<std::string> left_cmd(all_tokens.begin(), all_tokens.begin() + idx);
+                    std::vector<std::string> right_cmd(all_tokens.begin() + idx + 1, all_tokens.end());
+                    if (!left_cmd.empty() && !right_cmd.empty()) {
                         sh::exec::exec_pipeline(left_cmd, right_cmd);
-                        continue; // go to next prompt
+                        continue;
+                    }
+                }
+            } else if (input.find('|') != std::string::npos) {
+                // Parser didn't return '|' as a token (some inputs produce an empty token),
+                // fallback to splitting the raw input around the first '|' char.
+                size_t pipe_pos = input.find('|');
+                std::string left = helpers::trim(input.substr(0, pipe_pos));
+                std::string right = helpers::trim(input.substr(pipe_pos + 1));
+
+                if (!left.empty() && !right.empty()) {
+                    std::vector<std::string> left_cmd = sh::parser::parse(left);
+                    std::vector<std::string> right_cmd = sh::parser::parse(right);
+                    if (!left_cmd.empty() && !right_cmd.empty()) {
+                        sh::exec::exec_pipeline(left_cmd, right_cmd);
+                        continue;
                     }
                 }
             }
