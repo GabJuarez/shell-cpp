@@ -84,10 +84,11 @@ namespace sh::builtins {
         if (args.size() == 1) {
             const std::string &a = args[0];
             bool is_number = !a.empty();
-            for (char c: a) if (!std::isdigit((unsigned char) c)) {
-                is_number = false;
-                break;
-            }
+            for (char c: a)
+                if (!std::isdigit((unsigned char) c)) {
+                    is_number = false;
+                    break;
+                }
             if (is_number) {
                 int n = 0;
                 try {
