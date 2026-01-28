@@ -37,6 +37,15 @@ namespace sh::parser {
                 res.push_back(buffer);
                 buffer.clear();
                 continue;
+            } else if (!inside_double_quotes && !inside_single_quotes && r_args[i] == '|') {
+                // Treat pipe as its own token; flush any current buffer first
+                if (!buffer.empty()) {
+                    res.push_back(buffer);
+                    buffer.clear();
+                }
+                std::string pipeTok(1, '|');
+                res.push_back(pipeTok);
+                continue;
             } else if ((escape && inside_double_quotes && (
                             r_args[i] == '\"' || r_args[i] == '$' || r_args[i] == '`' || r_args[i] == '\\'))
                        || (!inside_double_quotes && !inside_single_quotes && escape)) {
