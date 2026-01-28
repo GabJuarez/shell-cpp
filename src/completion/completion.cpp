@@ -1,9 +1,11 @@
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <cstring>
+#include <cstdlib>
 #include <string>
 
+#include "../completion/completion.hpp"
 #include "../commands/builtins.hpp"
-#include "completion.hpp"
 
 namespace completion {
     // Generator called by readline to produce possible completions one by one
